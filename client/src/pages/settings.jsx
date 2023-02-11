@@ -182,14 +182,14 @@ function getVoices() {
                 options={options.languages || []}
               />
               {
-                error >= 3
+                error >= 2
                 &&
                 <p className="warning">
                 <FormattedMessage id='app.require-refresh' defaultMessage="language changes detected please refresh the page to apply changes" />
                 <span className="icon">&#9888;</span>
                 </p>
               }
-              {error >= 3 &&
+              {error >= 2 &&
                 <button className="btn btn-warning" onClick={() => {
                 window.location.pathname = "/"
               }}>refresh</button>}
