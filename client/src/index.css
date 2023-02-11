@@ -1044,7 +1044,7 @@ label[for=check-voice] {
 .loading{
     display: none;
     position: absolute;
-    color: white;
+    color: var(--txt-clr);
     width: 80%;
     font-size: 1rem;
     top : -100%;
