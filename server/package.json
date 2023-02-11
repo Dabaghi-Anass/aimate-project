@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "server": "nodemon server"
+    "dev": "nodemon server",
+    "server": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
