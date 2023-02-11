@@ -1014,3 +1014,16 @@ label[for=check-voice] {
 .menu-container a:hover{
     font-size: 1.9rem;
 }
+
+.btn-warning{
+    background: rgba(0, 255, 30, 0.343);
+    color: lime;
+    width: 50%;
+    margin-inline: auto;
+    padding-block: .8rem;
+    border-color: lime;
+}
+
+.btn-warning:hover{
+    color: lime;
+}

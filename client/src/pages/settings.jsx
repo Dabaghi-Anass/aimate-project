@@ -187,8 +187,12 @@ function getVoices() {
                 <p className="warning">
                 <FormattedMessage id='app.require-refresh' defaultMessage="language changes detected please refresh the page to apply changes" />
                 <span className="icon">&#9888;</span>
-              </p>
+                </p>
               }
+              {error >= 4 &&
+                <button className="btn btn-warning" onClick={() => {
+                window.location.pathname = "/"
+              }}>refresh</button>}
             </div>
             <div className="form-control">
               <input
