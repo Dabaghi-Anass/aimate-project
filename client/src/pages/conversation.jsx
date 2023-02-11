@@ -8,6 +8,8 @@ import NavBar from "../components/navbar";
 import robot_sms from "../assets/icons/robot_sms.svg"
 import useLocalStorage from "../hooks/useLocalStorage";
 import { FormattedMessage } from "react-intl";
+
+const APP_URL =  console.log(import.meta.env["VITE_REACT_APP_BASE_URL"]);
 export default function Conversation() {
   const { speak, speaking } = useAudio(onBoundary);
   const [permission,setPermission] = useState(true)
@@ -41,9 +43,10 @@ export default function Conversation() {
       ]);
       setUserMessage("");
       let id = `id-${Math.floor(Math.random() * 0xffffff)}`;
-      const { data } = await axios.post("http://localhost:3000", {
+      const { data } = await axios.post(APP_URL, {
         prompt: userMessage,
       });
+
       if (data.err || !data) {
         setMessages((prev) => [
           ...prev,
@@ -125,6 +128,7 @@ export default function Conversation() {
       removeEventListener("keydown", send);
       stopSpeech();
     };
+
   }, []);
   useEffect(() => {
     scroll();
