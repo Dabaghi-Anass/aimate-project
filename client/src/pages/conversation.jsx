@@ -9,7 +9,7 @@ import robot_sms from "../assets/icons/robot_sms.svg"
 import useLocalStorage from "../hooks/useLocalStorage";
 import { FormattedMessage } from "react-intl";
 
-const APP_URL =  console.log(import.meta.env["VITE_REACT_APP_BASE_URL"]);
+const APP_URL =  import.meta.env["VITE_REACT_APP_BASE_URL"]
 export default function Conversation() {
   const { speak, speaking } = useAudio(onBoundary);
   const [permission,setPermission] = useState(true)
@@ -121,8 +121,8 @@ export default function Conversation() {
     }
   }
   useEffect(() => {
-    let perm = get("options").permission;
-    setPermission(perm);
+    let perm = get("options")?.permission;
+    setPermission(!!perm);
     addEventListener("keydown", send);
     return () => {
       removeEventListener("keydown", send);
