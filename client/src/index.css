@@ -473,6 +473,9 @@ footer .nav-bar-brand {
         --bg: rgb(19, 18, 18);
         --txt-clr: rgb(201, 201, 201);
     }
+    .test-input{
+        color: white;
+    }
 }
 
 @media (prefers-color-scheme: light) {

@@ -199,6 +199,7 @@ function getVoices() {
                   setTestText(e.target.value);
                 }}
                 placeholder="text to try your configuration"
+                className="test-input"
                 style={{
                   padding: "1rem",
                 }}
