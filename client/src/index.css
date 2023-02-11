@@ -19,7 +19,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: poppins_light, system-ui, arial, sans-serif;
-    font-size: clamp(15px, 1rem + 2vw, 20px);
+    font-size: clamp(10px, 1rem + 2vw, 20px);
     --clr-primary: #9C36D4;
     --clr-third: #009dff;
     --bg-dark: rgb(18, 18, 18);
@@ -239,8 +239,8 @@ nav.nav-overlay {
     width: 100%;
     display: flex;
     gap: 1rem;
-    padding-inline: 1rem;
     align-items: center;
+    justify-content: center;
     margin-bottom: 4rem;
 }
 
@@ -283,10 +283,8 @@ nav.nav-overlay {
 }
 
 .settings-container {
-    /* height: 100vh; */
     z-index: -1;
     display: flex;
-    padding: 1rem;
     align-items: center;
     justify-content: center;
 }
@@ -673,10 +671,10 @@ fieldset {
     border: 5px solid currentColor;
     background-color: var(--bg);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1rem;
-    padding: 2rem;
-    margin-inline: 1rem;
+    padding: 1rem;
+    margin: 1rem;
 }
 
 section.form-group {
@@ -861,17 +859,29 @@ label[for=check-voice] {
     text-transform: capitalize;
 }
 
-.form-control:has(#check-voice) {
+.form-control:has(#check-voice){
     display: flex;
     align-items: center;
     gap: 1rem;
 }
+ .check-container{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+ }
 
 .form-control:has(.try-btn) {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
+}
+.try-img-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
 }
 
 .try-btn {
@@ -1004,12 +1014,14 @@ label[for=check-voice] {
     justify-content: center;
     width: 100%;
     height: 100%;
-    gap: 2rem;
+    gap: 3rem;
     text-transform: capitalize;
     font-weight: bold;
 }
 .menu-container a{
+    color: white;
     font-size: 2rem;
+    border-bottom :10px solid var(--clr-third);
 }
 .menu-container a:hover{
     font-size: 1.9rem;
@@ -1026,4 +1038,60 @@ label[for=check-voice] {
 
 .btn-warning:hover{
     color: lime;
+}
+.loading{
+    position: absolute;
+    color: white;
+    width: 80%;
+    font-size: .3rem;
+    top : -50%;
+    left: 50%;
+    display: flex;
+    gap: .4rem;
+    justify-content: space-around;
+    align-items: center;
+    background: #ffffff70;
+    backdrop-filter: blur(2px);
+    border-radius: 1rem;
+    padding: 1rem;
+    transform: translate(-50%,-100%);
+}
+.loading div{
+    display: flex;
+    gap: .3rem;
+}
+.loading > span:nth-child(1){
+    margin-right: .5rem;
+}
+.loading-dot{
+    display: block;
+    width: .5rem;
+    aspect-ratio: 1;
+    background: var(--gradient-secondary);
+    border-radius: 100%;
+    animation: bump var(--timing) ease infinite alternate;
+}
+.loading-dot:nth-child(1){
+    --timing : 510ms;
+}
+.loading-dot:nth-child(2){
+    --timing : 530ms;
+}
+.loading-dot:nth-child(3){
+    --timing : 550ms;
+}
+.loading-dot:nth-child(4){
+    --timing : 570ms;
+}
+.loading-dot:nth-child(5){
+    --timing : 590ms;
+}
+
+@keyframes bump {
+    from{
+        transform : translateY(0);
+    }
+    to{
+        transform : translateY(-50%);
+    }
 }

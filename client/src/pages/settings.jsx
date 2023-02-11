@@ -209,7 +209,7 @@ function getVoices() {
                 }}
               />
             </div>
-            <div className="form-control">
+            <div className="form-control try-img-container">
               <img
                 src={tryImage}
                 alt="click"
@@ -226,7 +226,7 @@ function getVoices() {
                 defaultMessage="voice"
               />
               </h4>
-            <div className="form-control">
+            <div className="form-control check-container">
               <label htmlFor="check-voice">
                  <FormattedMessage
                 id="app.settings-disable-voice"

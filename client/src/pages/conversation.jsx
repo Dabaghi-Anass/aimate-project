@@ -8,10 +8,11 @@ import NavBar from "../components/navbar";
 import robot_sms from "../assets/icons/robot_sms.svg"
 import useLocalStorage from "../hooks/useLocalStorage";
 import { FormattedMessage } from "react-intl";
-
+import Loading from "../components/loading"
 const APP_URL =  import.meta.env["VITE_REACT_APP_BASE_URL"]
 export default function Conversation() {
   const { speak, speaking } = useAudio(onBoundary);
+  const [pending,setPending] = useState(false)
   const [permission,setPermission] = useState(true)
   const [userMessage, setUserMessage] = useState("");
   const {get} = useLocalStorage()
@@ -33,6 +34,7 @@ export default function Conversation() {
     try {
       if (!userMessage || speechSynthesis.speaking) return;
       displayReaction("loading");
+      setPending(true)
       setMessages((prev) => [
         ...prev,
         {
@@ -63,6 +65,7 @@ export default function Conversation() {
           { content: data.content, author: "bot", id },
         ]);
         displayReaction("happy");
+         setPending(false)
         speak(data.content,permission);
       }
     } catch (error) {
@@ -72,6 +75,7 @@ export default function Conversation() {
         { content: "somthing went wrong try again later", author: "bot", id },
       ]);
       displayReaction("sad");
+       setPending(false)
     }
   };
   function onBoundary(e) {
@@ -161,6 +165,7 @@ export default function Conversation() {
             </div>
 
             <div className="prompt-container">
+              <Loading pending={pending} />
               <img src={robot_sms} alt="" />
               <button
                 className="record-btn"
