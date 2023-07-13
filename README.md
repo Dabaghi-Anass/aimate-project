@@ -8,4 +8,7 @@
   
 visit the app here [aimate](https://aimate.vercel.app/)
 ## screenshots*
-![home](/home.jpg)
+![home](/homepage.jpg)
+![home2](/homepage2.jpg)
+![chat](/chatpage.jpg)
+![settings](/settingspage.jpg)
