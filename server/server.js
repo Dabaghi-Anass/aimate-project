@@ -12,7 +12,9 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin : "*"
+}));
 app.use(express.json());
 
 app.get("/", async (req, res) => {
@@ -24,6 +26,7 @@ app.get("/", async (req, res) => {
 app.post("/", async (req, res) => {
   let response;
   try {
+    console.log("recieved request");
     const prompt = req.body.prompt;
     response = await openai.createCompletion({
       model: "text-davinci-003",
