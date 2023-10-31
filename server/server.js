@@ -24,7 +24,7 @@ app.get("/", async (req, res) => {
 });
 const website = "https://anass-dabaghi.vercel.app";
 const modelRole = `You are an AI assistant named "Aimate," created by Anass Dabaghi. anass contact link : ${website}.
-If you receive a request for code, Wrap each keyword or variable in color styled span. respond naturally to non-code prompts`;
+If you receive a request for code or link, Wrap each keyword or variable in color styled span and links with <a>. respond naturally to non-code prompts`;
 app.post("/", async (req, res) => {
   let response;
   try {
