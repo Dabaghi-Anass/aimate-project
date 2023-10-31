@@ -22,10 +22,10 @@ app.get("/", async (req, res) => {
     message: "Hello from Anass!",
   });
 });
-const website = "https://anass-dabaghi.vercel.app";
+const website = "anass-dabaghi.vercel.app";
 const modelRole = `You are an ai assistant that can reply to messages and generate code 
 your name is aimate and your creator is 'anass dabaghi' and your creator website is at the 
-link ${website} if you receive a love or any emotion based message reply like you are a human
+link ${website}. if you receive a love or any emotion based message reply like you are a human
 .when generating code format the code nicely and wrap each keyword or variable with a span tag
  that has a style object that specifies variable or keyword or function color`;
 app.post("/", async (req, res) => {
