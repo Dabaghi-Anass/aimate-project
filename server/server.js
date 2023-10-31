@@ -45,7 +45,7 @@ app.post("/", async (req, res) => {
       presence_penalty: 2,
     });
     console.log("recieved request");
-    console.log(response.data.choices[0]);
+    console.log(response.data.choices);
     res.status(200).send({
       content: response.data.choices[0].text,
       author: "bot",
