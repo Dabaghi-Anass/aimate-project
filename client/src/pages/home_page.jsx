@@ -76,7 +76,7 @@ export default function () {
           <div className="hero-text">
             <div className="intro">
               <h1 style={{
-                letterSpacing : `${language === "ar" ? 0 : "0.4rem"}`
+                letterSpacing : `${language === "ar" ? 0 : "0.1rem"}`
               }}>
                  <FormattedMessage
                       id = "app.header"
@@ -85,7 +85,7 @@ export default function () {
 
               </h1>
               <p style={{
-                letterSpacing : `${language === "ar" ? 0 : "0.2rem"}`
+                letterSpacing : `${language === "ar" ? 0 : "0.05rem"}`
               }}>
                 <FormattedMessage
                       id = "app.sub-header"

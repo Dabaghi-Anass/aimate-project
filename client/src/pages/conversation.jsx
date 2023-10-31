@@ -9,20 +9,15 @@ import robot_sms from "../assets/icons/robot_sms.svg"
 import useLocalStorage from "../hooks/useLocalStorage";
 import { FormattedMessage } from "react-intl";
 import Loading from "../components/loading"
-const APP_URL =  import.meta.env["VITE_REACT_APP_BASE_URL"]
+const APP_URL =  "http://localhost:3000";
+// const APP_URL =  import.meta.env["VITE_REACT_APP_BASE_URL"]
 export default function Conversation() {
   const { speak, speaking } = useAudio(onBoundary);
   const [pending,setPending] = useState(false)
   const [permission,setPermission] = useState(true)
   const [userMessage, setUserMessage] = useState("");
   const {get} = useLocalStorage()
-  const [messages, setMessages] = useState([
-    {
-      content: <FormattedMessage id="app.chat-greeting" defaultMessage="hello how can i help you"/>,
-      author: "bot",
-      id: Math.random() * 0xffffffffff,
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const messagesContainer = useRef();
   const [currentReaction, setCurrentReaction] = useState("happy");
 
@@ -152,15 +147,17 @@ export default function Conversation() {
           </section>
           <section className="chat">
             <div className="messages" ref={messagesContainer}>
+                <div className="quote">
+                  <FormattedMessage id="app.chat-greeting" defaultMessage="hello how can i help you"/>
+                </div>
               {messages.map((message) => (
                 <div
-                  key={message.id}
-                  className={`quote ${
-                    message.author === "user" ? " user-message" : ""
-                  }`}
-                >
-                  {message.content}
-                </div>
+                key={message.id}
+                className={`quote ${
+                  message.author === "user" ? " user-message" : ""
+                }`}
+                dangerouslySetInnerHTML={{ __html: message.content }}
+              />
               ))}
             </div>
 

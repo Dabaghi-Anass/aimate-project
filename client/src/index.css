@@ -1,8 +1,4 @@
-@font-face {
-    font-family: poppins_light;
-    src: url(./assets/fonts/Poppins-Light.ttf);
-}
-
+@import url('https://fonts.googleapis.com/css2?family=Handlee&family=Roboto&display=swap');
 @font-face {
     font-family: poppins_semi_bold;
     src: url(./assets/fonts/Poppins-SemiBold.ttf);
@@ -18,7 +14,7 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: poppins_light, system-ui, arial, sans-serif;
+    font-family:'Roboto', Arial,sans-serif;
     font-size: clamp(10px, 1rem + 2vw, 20px);
     --clr-primary: #9C36D4;
     --clr-third: #009dff;
@@ -29,6 +25,7 @@ body {
     --gradient-secondary: linear-gradient(90deg, #41D0FC, #82E2FF);
     --gradient-third: linear-gradient(90deg, #FFE278, #FFF982);
     --clr-orange: rgb(255, 187, 0);
+    --txt : rgb(27, 27, 27);
     color: var(--text-clr);
     scroll-behavior: smooth;
 }
@@ -38,7 +35,11 @@ body {
 *::after {
     box-sizing: border-box;
 }
-
+@media (prefers-color-scheme: dark){
+    body{
+        --txt : white;
+    }
+}
 nav {
     display: flex;
     align-items: center;
@@ -170,7 +171,7 @@ header {
     color: white;
 }
 
-*:focus {
+*:focus-visible {
     outline: 2px solid var(--clr-orange);
     outline-offset: 2px;
 }
@@ -218,29 +219,19 @@ nav.nav-overlay {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    padding: 2rem;
 }
 
 .hero-text .intro {
     text-transform: capitalize;
     line-height: 2.5rem;
-    padding-inline: 1rem;
-    letter-spacing: 0.4rem;
-    max-width: 50ch;
-}
-
-.hero-text .intro p {
-    line-height: normal;
-    letter-spacing: 0.2rem;
+    width: 100%;
 }
 
 .cta {
     width: 100%;
     display: flex;
-    gap: 1rem;
     align-items: center;
-    justify-content: center;
     margin-bottom: 4rem;
 }
 
@@ -340,6 +331,12 @@ nav.nav-overlay {
     padding: 1rem;
     border-radius: 10px;
     max-width: 50ch;
+    word-wrap: break-word;
+    
+}
+.quote > *{
+    width: fit-content;
+    max-width: 200px;
     word-wrap: break-word;
 }
 
@@ -589,7 +586,7 @@ input:where([type=text], [type=email], [type=password]) {
     z-index: 0;
     font-size: 1.1em;
     font-weight: 600;
-    color: var(--clr-primary);
+    color: var(--txt);
     background: transparent;
     caret-color: var(--clr-third);
 }

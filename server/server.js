@@ -4,7 +4,6 @@ import cors from "cors";
 import { Configuration, OpenAIApi } from "openai";
 
 dotenv.config();
-// token
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -22,9 +21,9 @@ app.get("/", async (req, res) => {
     message: "Hello from Anass!",
   });
 });
+
 const website = "https://anass-dabaghi.vercel.app";
-const modelRole = `You are an AI assistant named "Aimate," created by Anass Dabaghi. anass contact link : ${website}.
-If you receive a request for code or link, Wrap each keyword or variable in color styled span and links with <a>. respond naturally to non-code prompts`;
+const modelRole = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}.if user requested links wrap them in <a> tag`;
 app.post("/", async (req, res) => {
   let response;
   try {
@@ -38,11 +37,11 @@ app.post("/", async (req, res) => {
       frequency_penalty: 2.0,
       presence_penalty: 2,
     });
-    console.log("recieved request");
-    res.status(200).send({
+    let responseObject = {
       content: response.data.choices[0].text,
       author: "bot",
-    });
+    }
+    res.status(200).send(responseObject);
     
   } catch (error) {
     console.log(error.message)
