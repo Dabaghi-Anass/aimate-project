@@ -49,6 +49,7 @@ app.post("/", async (req, res) => {
     });
     
   } catch (error) {
+    console.log(error)
     res
       .send({
         content: "somthing went wrong try again later",
