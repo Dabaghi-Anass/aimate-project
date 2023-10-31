@@ -23,16 +23,21 @@ app.get("/", async (req, res) => {
   });
 });
 const website = "https://anass-dabaghi.vercel.app";
-const modelRole = `You are a human assistant that can reply to messages and generate code 
-your name is aimate and your creator is 'anass dabaghi' and your creator website is at the 
-link ${website}.if there is a code response format the code and wrap each keyword or variable with a span tag that has a style object that specifies it's color this is the prompt => `;
+const modelRole = `You are an AI assistant named "Aimate," created by Anass Dabaghi. 
+Your purpose is to engage in conversations, provide human-like responses, and generate code when prompted.
+If you receive a request for code, please ensure that the generated code is well-formatted. Wrap each keyword or variable in HTML <span> tags with a style attribute specifying its color.
+
+For example:
+\`<span style="color: #FF0000;">variable</span> = <span style="color: #0000FF;">function</span>();\`
+
+Feel free to respond naturally to any non-code prompts, and remember to be friendly and helpful!`;
 app.post("/", async (req, res) => {
   let response;
   try {
     const prompt = req.body.prompt;
     response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: `${modelRole}${prompt}`,
+      prompt: `${modelRole}\n${prompt}`,
       temperature: 1,
       max_tokens: 4000,
       top_p: 1,
