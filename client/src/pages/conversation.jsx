@@ -9,8 +9,8 @@ import robot_sms from "../assets/icons/robot_sms.svg"
 import useLocalStorage from "../hooks/useLocalStorage";
 import { FormattedMessage } from "react-intl";
 import Loading from "../components/loading"
-const APP_URL =  "http://localhost:3000";
-// const APP_URL =  import.meta.env["VITE_REACT_APP_BASE_URL"]
+// const APP_URL =  "http://localhost:3000";
+const APP_URL =  import.meta.env["VITE_REACT_APP_BASE_URL"]
 export default function Conversation() {
   const { speak, speaking } = useAudio(onBoundary);
   const [pending,setPending] = useState(false)
