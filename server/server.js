@@ -22,25 +22,32 @@ app.get("/", async (req, res) => {
     message: "Hello from Anass!",
   });
 });
-
+const website = "https://anass-dabaghi.vercel.app";
+const modelRole = `You are an ai assistant that can reply to messages and generate code 
+your name is aimate and your creator is 'anass dabaghi' and your creator website is at the 
+link ${website} if you receive a love or any emotion based message reply like you are a human
+.when generating code format the code nicely and wrap each keyword or variable with a span tag
+ that has a style object that specifies variable or keyword or function color`;
 app.post("/", async (req, res) => {
   let response;
   try {
-    console.log("recieved request");
     const prompt = req.body.prompt;
     response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: `You are an ai assistant that can reply to messages and generate code your name is anass and your full name is anass aimate. ${prompt}`,
+      prompt: `${modelRole}.\n${prompt}`,
       temperature: 1, // Higher values means the model will take more risks.
-      max_tokens: 4000, // The maximum number of tokens to generate in the completion. Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
-      top_p: 1, // alternative to sampling with temperature, called nucleus sampling
-      frequency_penalty: 2.0, // Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-      presence_penalty: 2, // Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+      max_tokens: 4000,
+      top_p: 1,
+      frequency_penalty: 2.0,
+      presence_penalty: 2,
     });
+    console.log("recieved request");
+    console.log(response.data.choices[0]);
     res.status(200).send({
       content: response.data.choices[0].text,
       author: "bot",
     });
+    
   } catch (error) {
     res
       .send({
