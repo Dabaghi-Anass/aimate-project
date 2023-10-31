@@ -24,7 +24,7 @@ app.get("/", async (req, res) => {
 });
 const website = "https://anass-dabaghi.vercel.app";
 const modelRole = `You are an AI assistant named "Aimate," created by Anass Dabaghi. anass contact link : ${website}.
-Your purpose is to engage in conversations and generate code when prompted.If you receive a request for code, format the code, Wrap each keyword or variable in span tags with a style attribute specifying its color.respond naturally to any non-code prompts`;
+If you receive a request for code, Wrap each keyword or variable in color styled span. respond naturally to non-code prompts`;
 app.post("/", async (req, res) => {
   let response;
   try {
@@ -39,7 +39,6 @@ app.post("/", async (req, res) => {
       presence_penalty: 2,
     });
     console.log("recieved request");
-    console.log(response.data.choices);
     res.status(200).send({
       content: response.data.choices[0].text,
       author: "bot",
