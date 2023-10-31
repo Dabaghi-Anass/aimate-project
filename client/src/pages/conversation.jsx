@@ -20,14 +20,16 @@ export default function Conversation() {
   const [messages, setMessages] = useState([]);
   const messagesContainer = useRef();
   const [currentReaction, setCurrentReaction] = useState("happy");
-
   const handleChange = ({ target: { value: message } }) => {
     setUserMessage(message);
   };
 
   const sendMessage = async () => {
     try {
-      if (!userMessage || speechSynthesis.speaking) return;
+      if (userMessage.length === 0) return;
+      if(speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
       displayReaction("loading");
       setPending(true)
       setMessages((prev) => [
@@ -96,13 +98,15 @@ export default function Conversation() {
     const recognition = new SpeechRecognition();
     recognition.interimResults = true;
     recognition.lang = options.language || "en-US";
+    let rec;
     recognition.addEventListener("result", (e) => {
-      let rec = e.results[0][0].transcript;
+      rec = e.results[0][0].transcript;
       setUserMessage(rec);
     });
 
-    recognition.addEventListener("end",  () => {
+    recognition.addEventListener("end", () => {
       recognition.stop();
+      sendMessage();
     });
     recognition.start();
   };
@@ -168,7 +172,6 @@ export default function Conversation() {
                 className="record-btn"
                 id="record"
                 onClick={recordMessage}
-
               onKeyUp={(e) => {
                 if (e.key === "Enter") sendMessage();
               }}
