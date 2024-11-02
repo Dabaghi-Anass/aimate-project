@@ -6,7 +6,7 @@ const vocabulary = {
     "Désir",
     "Adoration",
     "Amour",
-    "Mignon(ne)",
+    "Mignon",
     "Adorable",
     "Ne Pas Vivre Sans Toi",
     "Chaleur",

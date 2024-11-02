@@ -27,13 +27,20 @@ app.get("/healthcheck", async (req, res) => {
 
 app.post("/", async (req, res) => {
 	try {
+		res.setHeader("Content-Type", "text/event-stream");
+		res.setHeader("Cache-Control", "no-cache");
+		res.setHeader("Connection", "keep-alive");
+		res.setHeader("Transfer-Encoding", "chunked");
 		const prompt = req.body.prompt;
-
+		console.log("request from ", req.hostname);
 		const result = await model.generateContentStream(prompt);
-
 		for await (const content of result.stream) {
 			res.write(content.text());
 		}
+		res.end();
+		req.on("close", () => {
+			res.end();
+		});
 	} catch (error) {
 		res.status(500).send({
 			content: "somthing went wrong try again later",
