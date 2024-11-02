@@ -3,7 +3,7 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 import express from "express";
 const website = "https://anass-dabaghi.vercel.app";
-const systemInstruction = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}.if user requested links wrap them in <a> tag. make sure to respond with markdown format`;
+const systemInstruction = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}. make sure to respond with markdown format`;
 dotenv.config();
 const AI_API_KEY = process.env.AI_API_KEY;
 

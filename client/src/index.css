@@ -336,18 +336,26 @@ nav.nav-overlay {
 .quote {
 	background: var(--gradient-third);
 	width: fit-content;
-	padding: 1rem;
-	padding-block: 0 !important;
+	padding-inline: 1rem;
 	border-radius: 10px;
-	max-width: 50ch;
 	word-wrap: break-word;
-}
-.quote > * {
-	width: fit-content;
-	max-width: 200px;
-	word-wrap: break-word;
+	max-width: 70ch;
+	color: #181818;
 }
 
+.quote:not(.quote-bot) {
+	padding: 1rem;
+	max-width: 50ch;
+}
+.code-block {
+	background: #181818;
+	border-radius: 0.3rem;
+	padding: 0.3rem 0.6rem;
+}
+.code-block > span {
+	font-size: 0.6rem;
+	color: white;
+}
 .quote.user-message {
 	background: var(--gradient-secondary);
 	align-self: end;
@@ -1002,7 +1010,7 @@ label[for="check-voice"] {
 	position: absolute;
 	transition: all 300ms;
 	inset: 0;
-	background: #000000080;
+	background: #00000080;
 	backdrop-filter: grayscale(1) blur(10px);
 	display: grid;
 	place-content: center;

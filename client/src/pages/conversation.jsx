@@ -1,7 +1,14 @@
 import axios from "axios";
+import "katex/dist/katex.min.css";
 import React, { useEffect, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import ReactMarkDown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { a11yDark as theme } from "react-syntax-highlighter/dist/esm/styles/prism";
+import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import robot_sms from "../assets/icons/robot_sms.svg";
 import Canvas from "../components/canvas";
 import Loading from "../components/loading";
@@ -190,12 +197,50 @@ export default function Conversation() {
 							</div>
 							{messages.map((message) => (
 								<ReactMarkDown
+									remarkPlugins={[remarkGfm, remarkMath]}
+									rehypePlugins={[rehypeKatex, rehypeRaw]}
 									key={message.id}
-									className={`quote ${
+									className={`quote quote-bot${
 										message.author === "user"
 											? " user-message"
 											: ""
-									}`}>
+									}`}
+									components={{
+										code(props) {
+											const {
+												children,
+												className,
+												node,
+												...rest
+											} = props;
+											const match = /language-(\w+)/.exec(
+												className || ""
+											);
+											return match ? (
+												<div className='code-block'>
+													<span>{match[1]}</span>
+													<SyntaxHighlighter
+														customStyle={{
+															fontSize: ".8rem",
+														}}
+														{...rest}
+														PreTag='pre'
+														children={String(
+															children
+														).replace(/\n$/, "")}
+														language={match[1]}
+														style={theme}
+													/>
+												</div>
+											) : (
+												<code
+													{...rest}
+													className={className}>
+													{children}
+												</code>
+											);
+										},
+									}}>
 									{message.content}
 								</ReactMarkDown>
 							))}
