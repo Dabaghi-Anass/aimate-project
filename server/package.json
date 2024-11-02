@@ -1,18 +1,17 @@
 {
-  "name": "codex-server",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "nodemon server",
-    "server": "node server.js"
-  },
-  "dependencies": {
-    "acorn": "^8.11.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "nodemon": "^2.0.20",
-    "openai": "^3.1.0"
-  }
+	"name": "codex-server",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "nodemon server",
+		"server": "node server.js"
+	},
+	"dependencies": {
+		"@google/generative-ai": "^0.21.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.0.3",
+		"express": "^4.18.2",
+		"nodemon": "^2.0.20"
+	}
 }

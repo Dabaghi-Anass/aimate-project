@@ -1,46 +1,44 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import express from "express";
-import { Configuration, OpenAIApi } from "openai";
-
+const website = "https://anass-dabaghi.vercel.app";
+const systemInstruction = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}.if user requested links or images wrap them in <a> or <img> tags.`;
 dotenv.config();
-const configuration = new Configuration({
-	apiKey: process.env.OPENAI_API_KEY,
-});
+const AI_API_KEY = process.env.AI_API_KEY;
 
-const openai = new OpenAIApi(configuration);
+const genAI = new GoogleGenerativeAI(AI_API_KEY);
+const model = genAI.getGenerativeModel({
+	model: "gemini-1.5-flash",
+	systemInstruction,
+});
 
 const app = express();
 app.use(
 	cors({
-		origin: "*",
+		origin: process.env.CLIENT_URL,
 	})
 );
 app.use(express.json());
 
 app.get("/", async (req, res) => {
-	res.status(200).send({
-		message: "Hello from Anass!",
-	});
+	const prompt = "Write a story about a magic backpack.";
+
+	const result = await model.generateContentStream(prompt);
+
+	for await (const content of result.stream) {
+		//send it to the client
+		res.write(content.text());
+	}
 });
 
-const website = "https://anass-dabaghi.vercel.app";
-const modelRole = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}.if user requested links or images wrap them in <a> or <img> tags.`;
 app.post("/", async (req, res) => {
 	let response;
 	try {
 		const prompt = req.body.prompt;
-		response = await openai.createCompletion({
-			model: "text-davinci-003",
-			prompt: `${modelRole}\n${prompt}`,
-			temperature: 1,
-			max_tokens: 4000,
-			top_p: 1,
-			frequency_penalty: 2.0,
-			presence_penalty: 2,
-		});
+
 		let responseObject = {
-			content: response.data.choices[0].text,
+			content: "",
 			author: "bot",
 		};
 		res.status(200).send(responseObject);
