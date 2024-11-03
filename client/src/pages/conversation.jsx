@@ -2,18 +2,13 @@ import axios from "axios";
 import "katex/dist/katex.min.css";
 import React, { useEffect, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
-import ReactMarkDown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { a11yDark as theme } from "react-syntax-highlighter/dist/esm/styles/prism";
-import rehypeKatex from "rehype-katex";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
 import robot_sms from "../assets/icons/robot_sms.svg";
 import Canvas from "../components/canvas";
 import Loading from "../components/loading";
+import { MarkDownView } from "../components/MarkDownView";
 import NavBar from "../components/navbar";
 import ReactionCtx from "../context/reaction";
+import { useAnimatedText } from "../hooks/useAnimatedText";
 import { useAudio } from "../hooks/useAudio";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { detectEmotion } from "./vocabulary";
@@ -25,6 +20,8 @@ export default function Conversation() {
 	const [permission, setPermission] = useState(true);
 	const [userMessage, setUserMessage] = useState("");
 	const [currentBotResponse, setCurentBotResponse] = useState("");
+	const animatedBotResponse = useAnimatedText(currentBotResponse, " ");
+	const [currentStreamID, setCurrentStreamID] = useState();
 	const { get } = useLocalStorage();
 	const [messages, setMessages] = useState([]);
 	const messagesContainer = useRef();
@@ -35,45 +32,52 @@ export default function Conversation() {
 
 	// in your React component
 	const fetchStreamedResponse = async (userMessage) => {
-		const response = await axios.post(
-			APP_URL,
-			{
-				prompt: userMessage,
-			},
-			{
-				responseType: "stream",
-			}
-		);
+		let id = `id-${Math.floor(Math.random() * 0xffffff)}`;
+		let botResponse = "";
+		try {
+			const response = await axios.post(
+				APP_URL,
+				{
+					prompt: userMessage,
+				},
+				{
+					responseType: "stream",
+				}
+			);
 
-		if (response.status === 500) {
-			console.log("error ocuured");
+			if (response.status === 500) {
+				console.log("error ocuured");
+				setMessages((prev) => [
+					...prev,
+					{
+						content: "something went wrong try again later",
+						author: "user",
+						id: "id-" + Math.floor(Math.random() * 0xffffff),
+					},
+				]);
+				displayReaction("sad");
+				return;
+			}
+			setCurrentStreamID(id);
 			setMessages((prev) => [
 				...prev,
 				{
-					content: "something went wrong try again later",
-					author: "user",
+					content: "typing...",
+					author: "bot",
+					id,
 				},
 			]);
-			displayReaction("sad");
-			return;
-		}
-		let botResponse = "";
-		let id = `id-${Math.floor(Math.random() * 0xffffff)}`;
+			for await (const chunk of response.data) {
+				console.log(chunk);
+				botResponse += chunk;
+				setCurentBotResponse((prev) => prev + chunk);
+			}
 
-		for await (const chunk of response.data) {
-			console.log(chunk);
-			botResponse += chunk;
-			setCurentBotResponse((prev) => prev + chunk);
+			speak(botResponse, permission);
+		} catch (error) {
+			console.error("Error from anass", error);
 		}
-
-		setMessages((prev) => [
-			...prev,
-			{
-				content: botResponse,
-				author: "bot",
-				id,
-			},
-		]);
+		const messagesCopy = [...messages];
 		displayReaction("happy");
 	};
 
@@ -96,9 +100,10 @@ export default function Conversation() {
 			setUserMessage("");
 
 			await fetchStreamedResponse(userMessage);
+
 			setPending(false);
 		} catch (error) {
-			console.error(error);
+			console.log(error);
 			let id = `id-${(Math.random() * 0xffffff).toString(16)}`;
 			setMessages((prev) => [
 				...prev,
@@ -108,7 +113,7 @@ export default function Conversation() {
 					id,
 				},
 			]);
-			displayReaction("sad");
+			// displayReaction("sad");
 			setPending(false);
 		}
 	};
@@ -195,55 +200,24 @@ export default function Conversation() {
 									defaultMessage='hello how can i help you'
 								/>
 							</div>
-							{messages.map((message) => (
-								<ReactMarkDown
-									remarkPlugins={[remarkGfm, remarkMath]}
-									rehypePlugins={[rehypeKatex, rehypeRaw]}
-									key={message.id}
-									className={`quote quote-bot${
-										message.author === "user"
-											? " user-message"
-											: ""
-									}`}
-									components={{
-										code(props) {
-											const {
-												children,
-												className,
-												node,
-												...rest
-											} = props;
-											const match = /language-(\w+)/.exec(
-												className || ""
-											);
-											return match ? (
-												<div className='code-block'>
-													<span>{match[1]}</span>
-													<SyntaxHighlighter
-														customStyle={{
-															fontSize: ".8rem",
-														}}
-														{...rest}
-														PreTag='pre'
-														children={String(
-															children
-														).replace(/\n$/, "")}
-														language={match[1]}
-														style={theme}
-													/>
-												</div>
-											) : (
-												<code
-													{...rest}
-													className={className}>
-													{children}
-												</code>
-											);
-										},
-									}}>
-									{message.content}
-								</ReactMarkDown>
-							))}
+							{messages.map((message) => {
+								if (message.id === currentStreamID)
+									return (
+										<MarkDownView
+											author={message.author}
+											key={message.id}
+											text={animatedBotResponse}
+										/>
+									);
+								else
+									return (
+										<MarkDownView
+											author={message.author}
+											key={message.id}
+											text={message.content}
+										/>
+									);
+							})}
 						</div>
 
 						<div className='prompt-container'>

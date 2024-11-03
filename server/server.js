@@ -37,16 +37,11 @@ app.post("/", async (req, res) => {
 		for await (const content of result.stream) {
 			res.write(content.text());
 		}
+
 		res.end();
-		req.on("close", () => {
-			res.end();
-		});
 	} catch (error) {
-		res.status(500).send({
-			content: "somthing went wrong try again later",
-			author: "bot",
-			err: true,
-		});
+		res.write("\nSomething went wrong. Please try again later.");
+		res.end();
 	}
 });
 const PORT = process.env.PORT || 3000;
