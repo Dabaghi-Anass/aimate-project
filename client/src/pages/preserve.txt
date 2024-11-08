@@ -1,98 +1,139 @@
+import axios from "axios";
 import "katex/dist/katex.min.css";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
-import { fetchStreamedResponse } from "../api/api";
 import robot_sms from "../assets/icons/robot_sms.svg";
 import Canvas from "../components/canvas";
 import Loading from "../components/loading";
 import { MarkDownView } from "../components/MarkDownView";
 import NavBar from "../components/navbar";
 import ReactionCtx from "../context/reaction";
-import { useAnimatedText } from "../hooks/useAnimatedText";
 import { useAudio } from "../hooks/useAudio";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { uniqueId } from "../utils/utils";
+import { markdownToNormalText } from "../utils/utils";
 import { detectEmotion } from "./vocabulary";
+const APP_URL = "http://localhost:4040";
+// const APP_URL = import.meta.env["VITE_REACT_APP_BASE_URL"];
 export default function Conversation() {
 	const { get } = useLocalStorage();
 	const [currentReaction, setCurrentReaction] = useState("happy");
 	const [messages, setMessages] = useState([]);
-	const [currentMessageStream, setCurrentMessageStream] = useState("");
-	const animatedMessage = useAnimatedText(currentMessageStream);
+	const [messageQueue, setMessageQueue] = useState([]);
 	const { speak, speaking } = useAudio(onBoundary);
 	const [pending, setPending] = useState(false);
 	const [permission, setPermission] = useState(true);
+	const [userMessage, setUserMessage] = useState("");
 	const messagesContainer = useRef();
-	const userMessageRef = useRef();
 
 	function scrollToBottom() {
-		setTimeout(() => {
-			messagesContainer.current.scrollTop =
-				messagesContainer.current.scrollHeight + 1000;
-			console.log(messagesContainer.current.scrollHeight);
-		}, 0);
+		messagesContainer.current.scrollTop =
+			messagesContainer.current.scrollHeight;
 	}
 
-	function sendMessage() {
-		const userMessage = userMessageRef?.current.value;
-		if (!userMessage) return;
-		setPending(true);
-		const msg = userMessage;
-		userMessageRef.current.value = "";
-		setMessages((prev) => [
-			...prev,
-			{
-				content: msg,
-				author: "user",
-				id: uniqueId(),
-			},
-		]);
-		getServerResponseToPrompt(msg);
-	}
+	const handleChangeUserPrompt = ({ target: { value: message } }) => {
+		setUserMessage(message);
+	};
 
-	const getServerResponseToPrompt = useCallback(
-		(prompt) => {
-			fetchStreamedResponse(prompt, {
-				onError: pushErrorMessage,
-				onChunk: (chunk) => {
-					setCurrentMessageStream((prev) => prev + chunk);
-				},
-				onFinish: (data) => {
-					setPending(false);
-					setMessages((prev) => [
-						...prev,
-						{
-							content: data,
-							author: "bot",
-							id: uniqueId(),
-						},
-					]);
-					setCurrentMessageStream("");
-					displayReaction("happy");
-					speak(data, permission);
-				},
-			});
-		},
-		[permission]
-	);
+	const fetchStreamedResponse = async (
+		userMessage,
+		{ onChunk, onFinish, onError }
+	) => {
+		let botResponse = "";
+		try {
+			const response = await axios.post(
+				APP_URL,
+				{ prompt: userMessage },
+				{ responseType: "stream" }
+			);
 
+			if (response.status === 500) {
+				onError("server error");
+				return;
+			}
+
+			for await (const chunk of response.data) {
+				botResponse += chunk;
+				onChunk(chunk);
+			}
+			onFinish(botResponse);
+		} catch (error) {
+			onError("transmition error " + error.message);
+		}
+	};
 	function pushErrorMessage() {
-		const id = uniqueId();
+		const id = `id-${(Math.random() * 0xffffff).toString(16)}`;
 		setMessages((prev) => [
 			...prev,
 			{
-				content: "something went wrong try again later",
+				content: "somthing went wrong try again later",
 				author: "bot",
-				type: "error",
 				id,
 			},
 		]);
 		displayReaction("sad");
 	}
+	function streamIntoTheLastMessage(chunk) {
+		const messagesCopy = [...messages];
+		if (!messagesCopy[messagesCopy.length - 1]) return;
+		messagesCopy[messagesCopy.length - 1].content += chunk;
+		setMessages(messagesCopy);
+	}
+	function addMessage(messages) {
+		messages = messages.map((message) => {
+			const id = `id-${(Math.random() * 0xffffff).toString(16)}`;
+			return { ...message, id };
+		});
+		setMessages((prev) => [...prev, ...messages]);
+	}
+	const sleep = async (seconds) => {
+		return new Promise((resolve) => {
+			setTimeout(resolve, seconds * 1000);
+		});
+	};
+	const sendMessage = async () => {
+		try {
+			if (userMessage.length === 0) return;
+			if (speechSynthesis.speaking) {
+				speechSynthesis.cancel();
+			}
+			setPending(true);
+			const message = userMessage;
+			console.log(messages);
+			addMessage([
+				{
+					content: message,
+					author: "user",
+				},
+				{
+					content: "loading...",
+					author: "bot",
+				},
+			]);
 
+			await sleep(3);
+			console.log(messages);
+			setUserMessage("");
+			await fetchStreamedResponse(message, {
+				onError: (error) => {
+					console.log("error ocuured", error);
+					pushErrorMessage();
+				},
+				onChunk: streamIntoTheLastMessage,
+				onFinish: (response) => {
+					const normalText = markdownToNormalText(response);
+					speak(normalText, permission);
+					setPending(false);
+				},
+			});
+		} catch (error) {
+			console.log(error);
+			pushErrorMessage();
+			setPending(false);
+		}
+	};
 	function onBoundary(e) {
 		let text = e.currentTarget.text.replace("\n", "").trim();
-		// if (e.charIndex === text.length) setSpeaking(false);
+		if (e.charIndex === text.length) setSpeaking(false);
 		let endOfWordIndex = e.charIndex - 1;
 		while (text[endOfWordIndex] !== " " && endOfWordIndex <= text.length) {
 			endOfWordIndex++;
@@ -114,7 +155,7 @@ export default function Conversation() {
 		let rec;
 		recognition.addEventListener("result", (e) => {
 			rec = e.results[0][0].transcript;
-			userMessageRef.current.value = rec;
+			setUserMessage(rec);
 		});
 
 		recognition.addEventListener("end", () => {
@@ -146,8 +187,8 @@ export default function Conversation() {
 		};
 	}, []);
 	useEffect(() => {
-		scrollToBottom();
-	}, [currentMessageStream, messages]);
+		setTimeout(() => scrollToBottom(), 0);
+	}, [messages]);
 	useEffect(() => {
 		displayReaction(pending ? "loading" : "happy");
 	}, [pending]);
@@ -173,17 +214,10 @@ export default function Conversation() {
 									<MarkDownView
 										author={message.author}
 										key={message.id}
-										type={message.type}
 										text={message.content}
 									/>
 								);
 							})}
-							{currentMessageStream && (
-								<MarkDownView
-									author='bot'
-									text={animatedMessage}
-								/>
-							)}
 						</div>
 
 						<div className='prompt-container'>
@@ -200,11 +234,12 @@ export default function Conversation() {
 							</button>
 							<input
 								type='text'
-								ref={userMessageRef}
 								className='prompt'
 								onKeyUp={(e) => {
 									if (e.key === "Enter") sendMessage();
 								}}
+								value={userMessage}
+								onChange={(e) => handleChangeUserPrompt(e)}
 								placeholder='&#10095; write to mate'
 							/>
 							<button

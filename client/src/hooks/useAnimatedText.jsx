@@ -21,8 +21,8 @@ export function useAnimatedText(text, delimiter = " ") {
 		}
 
 		let controls = animate(animatedCursor, text.split(delimiter).length, {
-			duration: text.length * 0.008,
-			ease: "easeOut",
+			duration: text.length * 0.03,
+			ease: "linear",
 			onUpdate(latest) {
 				setCursor(Math.floor(latest));
 			},

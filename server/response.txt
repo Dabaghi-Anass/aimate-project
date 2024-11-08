@@ -1,0 +1,128 @@
+## HTML (index.html)
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cube Drawing</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas"></canvas>
+  <script src="script.js"></script>
+</body>
+</html>
+```
+
+## Javascript (script.js)
+
+```javascript
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+
+// Set canvas size
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Cube dimensions
+const cubeSize = 100;
+
+// Cube vertices (3D coordinates)
+const vertices = [
+  [-cubeSize, -cubeSize, -cubeSize],
+  [cubeSize, -cubeSize, -cubeSize],
+  [cubeSize, cubeSize, -cubeSize],
+  [-cubeSize, cubeSize, -cubeSize],
+  [-cubeSize, -cubeSize, cubeSize],
+  [cubeSize, -cubeSize, cubeSize],
+  [cubeSize, cubeSize, cubeSize],
+  [-cubeSize, cubeSize, cubeSize],
+];
+
+// Cube edges (connecting vertices)
+const edges = [
+  [0, 1],
+  [1, 2],
+  [2, 3],
+  [3, 0],
+  [4, 5],
+  [5, 6],
+  [6, 7],
+  [7, 4],
+  [0, 4],
+  [1, 5],
+  [2, 6],
+  [3, 7],
+];
+
+// Projection matrix (for 3D to 2D)
+const projectionMatrix = [
+  [1, 0, 0],
+  [0, 1, 0],
+  [0, 0, 0],
+];
+
+// Function to project 3D coordinates to 2D
+function project(vertex) {
+  const x = vertex[0] * projectionMatrix[0][0] + vertex[1] * projectionMatrix[0][1] + vertex[2] * projectionMatrix[0][2];
+  const y = vertex[0] * projectionMatrix[1][0] + vertex[1] * projectionMatrix[1][1] + vertex[2] * projectionMatrix[1][2];
+  return [x, y];
+}
+
+// Function to draw the cube
+function drawCube() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 2;
+
+  // Project vertices to 2D
+  const projectedVertices = vertices.map(project);
+
+  // Draw edges
+  for (let i = 0; i < edges.length; i++) {
+    const edge = edges[i];
+    const start = projectedVertices[edge[0]];
+    const end = projectedVertices[edge[1]];
+
+    ctx.beginPath();
+    ctx.moveTo(start[0] + canvas.width / 2, start[1] + canvas.height / 2);
+    ctx.lineTo(end[0] + canvas.width / 2, end[1] + canvas.height / 2);
+    ctx.stroke();
+  }
+}
+
+// Draw the cube initially
+drawCube();
+```
+
+**Explanation:**
+
+1. **HTML:** Sets up a canvas element with an ID "myCanvas" and links the "script.js" file.
+2. **Javascript:**
+   - Gets the canvas and its context.
+   - Sets the canvas size to the window size.
+   - Defines the cube dimensions, vertices, and edges.
+   - Defines a projection matrix to simulate a perspective projection.
+   - Implements a `project` function to transform 3D coordinates to 2D.
+   - Implements a `drawCube` function:
+     - Clears the canvas.
+     - Sets line style and width.
+     - Projects vertices to 2D.
+     - Iterates through edges and draws lines connecting projected vertices.
+   - Calls `drawCube` initially to draw the cube.
+
+**To run the code:**
+
+1. Create two files: `index.html` and `script.js`.
+2. Paste the corresponding code into each file.
+3. Open `index.html` in a web browser.
+
+You should see a simple wireframe cube drawn in the canvas. You can adjust the `cubeSize` variable to change the size of the cube, and experiment with different projection matrices to create different visual effects.

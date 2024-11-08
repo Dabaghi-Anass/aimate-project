@@ -8,14 +8,14 @@ import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
-export function MarkDownView({ text, author }) {
+export function MarkDownView({ text, author, type }) {
 	return (
 		<ReactMarkDown
 			remarkPlugins={[remarkGfm, remarkMath]}
 			rehypePlugins={[rehypeKatex, rehypeRaw]}
 			className={`quote quote-bot${
 				author === "user" ? " user-message" : ""
-			}`}
+			} ${type === "error" ? "error" : ""}`}
 			components={{
 				code(props) {
 					const { children, className, node, ...rest } = props;
