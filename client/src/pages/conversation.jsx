@@ -1,13 +1,18 @@
 import "katex/dist/katex.min.css";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+	default as React,
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { FormattedMessage } from "react-intl";
 import { fetchStreamedResponse } from "../api/api";
 import robot_sms from "../assets/icons/robot_sms.svg";
-import Canvas from "../components/canvas";
 import Loading from "../components/loading";
 import { MarkDownView } from "../components/MarkDownView";
-import NavBar from "../components/navbar";
-import ReactionCtx from "../context/reaction";
+import { ReactionContext } from "../context/reaction";
 import { useAnimatedText } from "../hooks/useAnimatedText";
 import { useAudio } from "../hooks/useAudio";
 import useLocalStorage from "../hooks/useLocalStorage";
@@ -15,21 +20,42 @@ import { markdownToNormalText, uniqueId } from "../utils/utils";
 import { detectEmotion } from "./vocabulary";
 export default function Conversation() {
 	const { get } = useLocalStorage();
-	const [currentReaction, setCurrentReaction] = useState("happy");
 	const [messages, setMessages] = useState([]);
 	const [currentMessageStream, setCurrentMessageStream] = useState("");
-	const animatedMessage = useAnimatedText(currentMessageStream);
 	const { speak, speaking } = useAudio(onBoundary);
+	const { changeReaction } = useContext(ReactionContext);
 	const [pending, setPending] = useState(false);
 	const [permission, setPermission] = useState(false);
 	const messagesContainer = useRef();
 	const userMessageRef = useRef();
+	const onTransmissionFinish = useCallback((data) => {
+		if (data?.length > 0) {
+			setPending(false);
+			setMessages((prev) => [
+				...prev,
+				{
+					content: currentMessageStream,
+					author: "bot",
+					id: uniqueId(),
+				},
+			]);
+			setCurrentMessageStream("");
+		}
+	});
+	const animatedMessage = useAnimatedText(
+		currentMessageStream,
+		" ",
+		onTransmissionFinish,
+		() => {
+			setPending(false);
+			scrollToBottom();
+		}
+	);
 
 	function scrollToBottom() {
 		setTimeout(() => {
 			messagesContainer.current.scrollTop =
-				messagesContainer.current.scrollHeight + 1000;
-			console.log(messagesContainer.current.scrollHeight);
+				(messagesContainer?.current?.scrollHeight ?? 0) + 1000;
 		}, 0);
 	}
 
@@ -58,16 +84,6 @@ export default function Conversation() {
 					setCurrentMessageStream((prev) => prev + chunk);
 				},
 				onFinish: (data) => {
-					setPending(false);
-					// setMessages((prev) => [
-					// 	...prev,
-					// 	{
-					// 		content: data,
-					// 		author: "bot",
-					// 		id: uniqueId(),
-					// 	},
-					// ]);
-					// setCurrentMessageStream("");
 					displayReaction("happy");
 					speak(markdownToNormalText(data), permission);
 				},
@@ -78,7 +94,7 @@ export default function Conversation() {
 
 	function pushErrorMessage(error) {
 		const id = uniqueId();
-		console.log(error);
+		console.error(error);
 		setMessages((prev) => [
 			...prev,
 			{
@@ -93,7 +109,6 @@ export default function Conversation() {
 
 	function onBoundary(e) {
 		let text = e.currentTarget.text.replace("\n", "").trim();
-		// if (e.charIndex === text.length) setSpeaking(false);
 		let endOfWordIndex = e.charIndex - 1;
 		while (text[endOfWordIndex] !== " " && endOfWordIndex <= text.length) {
 			endOfWordIndex++;
@@ -126,7 +141,7 @@ export default function Conversation() {
 	};
 
 	function displayReaction(reaction) {
-		setCurrentReaction(reaction);
+		changeReaction(reaction);
 	}
 	function stopSpeech() {
 		speechSynthesis.cancel();
@@ -155,70 +170,57 @@ export default function Conversation() {
 	}, [pending]);
 
 	return (
-		<ReactionCtx.Provider value={currentReaction}>
-			<div className='conversation'>
-				<NavBar theme='dark'></NavBar>
-				<main className='chat-container'>
-					<section className='robot-animation'>
-						<Canvas reaction={currentReaction}></Canvas>
-					</section>
-					<section className='chat'>
-						<div className='messages' ref={messagesContainer}>
-							<div className='quote'>
-								<FormattedMessage
-									id='app.chat-greeting'
-									defaultMessage='hello how can i help you'
-								/>
-							</div>
-							{messages.map((message) => {
-								return (
-									<MarkDownView
-										author={message.author}
-										key={message.id}
-										type={message.type}
-										text={message.content}
-									/>
-								);
-							})}
-							{currentMessageStream && (
-								<MarkDownView
-									author='bot'
-									text={animatedMessage}
-								/>
-							)}
-						</div>
-
-						<div className='prompt-container'>
-							<Loading pending={pending} />
-							<img src={robot_sms} alt='' />
-							<button
-								className='record-btn'
-								id='record'
-								onClick={recordMessage}
-								onKeyUp={async (e) => {
-									// if (e.key === "Enter") await sendMessage();
-								}}>
-								<ion-icon name='mic'></ion-icon>
-							</button>
-							<input
-								type='text'
-								ref={userMessageRef}
-								className='prompt'
-								onKeyUp={(e) => {
-									if (e.key === "Enter") sendMessage();
-								}}
-								placeholder='&#10095; write to mate'
-							/>
-							<button
-								disabled={pending}
-								className='send-button'
-								onClick={sendMessage}>
-								<ion-icon name='send'></ion-icon>
-							</button>
-						</div>
-					</section>
-				</main>
+		<section className='chat'>
+			<div className='messages' ref={messagesContainer}>
+				<div className='quote'>
+					<FormattedMessage
+						id='app.chat-greeting'
+						defaultMessage='hello how can i help you'
+					/>
+				</div>
+				{messages.map((message) => {
+					return (
+						<MarkDownView
+							author={message.author}
+							key={message.id}
+							type={message.type}
+							text={message.content}
+						/>
+					);
+				})}
+				{currentMessageStream && (
+					<MarkDownView author='bot' text={animatedMessage} />
+				)}
 			</div>
-		</ReactionCtx.Provider>
+
+			<div className='prompt-container'>
+				<Loading pending={pending} />
+				<img src={robot_sms} alt='' />
+				<button
+					className='record-btn'
+					id='record'
+					onClick={recordMessage}
+					onKeyUp={async (e) => {
+						// if (e.key === "Enter") await sendMessage();
+					}}>
+					<ion-icon name='mic'></ion-icon>
+				</button>
+				<input
+					type='text'
+					ref={userMessageRef}
+					className='prompt'
+					onKeyUp={(e) => {
+						if (e.key === "Enter") sendMessage();
+					}}
+					placeholder='&#10095; write to mate'
+				/>
+				<button
+					disabled={pending}
+					className='send-button'
+					onClick={sendMessage}>
+					<ion-icon name='send'></ion-icon>
+				</button>
+			</div>
+		</section>
 	);
 }

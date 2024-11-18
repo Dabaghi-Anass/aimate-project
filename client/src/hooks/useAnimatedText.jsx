@@ -1,6 +1,6 @@
 import { animate, useMotionValue } from "framer-motion";
 import { useEffect, useState } from "react";
-export function useAnimatedText(text, delimiter = " ") {
+export function useAnimatedText(text, delimiter = " ", onFinish, onUpdateText) {
 	let animatedCursor = useMotionValue(0);
 	let [cursor, setCursor] = useState(0);
 	let [prevText, setPrevText] = useState(text);
@@ -14,6 +14,7 @@ export function useAnimatedText(text, delimiter = " ") {
 			setCursor(0);
 		}
 	}
+	//call onFinish after finishing
 
 	useEffect(() => {
 		if (!isSameText) {
@@ -25,11 +26,18 @@ export function useAnimatedText(text, delimiter = " ") {
 			ease: "linear",
 			onUpdate(latest) {
 				setCursor(Math.floor(latest));
+				onUpdateText?.(text);
+			},
+			onComplete: () => {
+				if (typeof onFinish === "function") {
+					onFinish(text);
+				}
 			},
 		});
 
 		return () => controls.stop();
 	}, [animatedCursor, isSameText, text]);
 
-	return text.split(delimiter).slice(0, cursor).join(delimiter);
+	const part = text.split(delimiter).slice(0, cursor).join(delimiter);
+	return part;
 }

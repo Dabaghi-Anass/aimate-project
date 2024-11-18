@@ -16,7 +16,6 @@ function removeCodeBlocks(markdown) {
 	return cleanMarkdown;
 }
 export function markdownToNormalText(mdText) {
-	console.log(removeCodeBlocks(mdText));
 	return removeMd(removeCodeBlocks(mdText));
 }
 

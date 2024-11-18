@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useRef } from "react";
 import reactionsImages from "../assets/images/images";
-import ReactionCtx from "../context/reaction";
+import { ReactionContext } from "../context/reaction";
 export default function Canvas() {
-	const reactionCtx = useContext(ReactionCtx);
+	const { reaction: reactionCtx } = useContext(ReactionContext);
 	const { current: images } = useRef(reactionsImages);
 	const canvasRef = useRef(null);
 	let { current: ctx } = useRef(canvasRef?.current?.getContext("2d"));
@@ -83,6 +83,6 @@ export default function Canvas() {
 		return () => {
 			clearInterval(animation);
 		};
-	});
+	}, []);
 	return <canvas ref={canvasRef}></canvas>;
 }
