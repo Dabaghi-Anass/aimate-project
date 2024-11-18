@@ -33,43 +33,44 @@ const fileContent = fs.readFileSync("response.txt", "utf-8");
 const linesArray = fileContent.split("\n");
 
 const chatsMap = new Map();
-// app.post("/", async (req, res) => {
-// 	try {
-// 		res.setHeader("Content-Type", "text/event-stream");
-// 		res.setHeader("Cache-Control", "no-cache");
-// 		res.setHeader("Connection", "keep-alive");
-// 		res.setHeader("Transfer-Encoding", "chunked");
-// 		//get request ip address
-// 		// chatsMap.set(req.ip, chatsMap.get(req.ip));
-// 		// chats[req.ip] = chats[req.ip] || [];
-// 		for (const line of linesArray) {
-// 			res.write(line + "\n");
-// 			// await sleep(0.04);
-// 		}
-// 		res.end();
-// 	} catch (error) {
-// 		res.write("\nSomething went wrong. Please try again later.");
-// 		res.end();
-// 	}
-// });
 app.post("/", async (req, res) => {
 	try {
 		res.setHeader("Content-Type", "text/event-stream");
 		res.setHeader("Cache-Control", "no-cache");
 		res.setHeader("Connection", "keep-alive");
 		res.setHeader("Transfer-Encoding", "chunked");
-		const prompt = req.body.prompt;
-		console.log("request from ", req.hostname);
-		const result = await model.generateContentStream(prompt);
-		for await (const content of result.stream) {
-			res.write(content.text());
+		//get request ip address
+		// chatsMap.set(req.ip, chatsMap.get(req.ip));
+		// chats[req.ip] = chats[req.ip] || [];
+		for (const line of linesArray) {
+			res.write(line + "\n");
+			// await sleep(0.04);
 		}
-
 		res.end();
 	} catch (error) {
 		res.write("\nSomething went wrong. Please try again later.");
 		res.end();
 	}
 });
+// app.post("/", async (req, res) => {
+// 	try {
+// 		res.setHeader("Content-Type", "text/event-stream");
+// 		res.setHeader("Cache-Control", "no-cache");
+// 		res.setHeader("Connection", "keep-alive");
+// 		res.setHeader("Transfer-Encoding", "chunked");
+// 		const prompt = req.body.prompt;
+// 		console.log("request from ", req.hostname);
+// 		const result = await model.generateContentStream(prompt);
+// 		for await (const content of result.stream) {
+// 			res.write(content.text());
+// 		}
+
+// 		res.end();
+// 	} catch (error) {
+// 		console.log(error);
+// 		res.write("\nSomething went wrong. Please try again later.");
+// 		res.end();
+// 	}
+// });
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("AI server started on PORT : " + PORT));

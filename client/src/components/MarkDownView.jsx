@@ -24,11 +24,12 @@ export function MarkDownView({ text, author, type }) {
 						<div className='code-block'>
 							<span>{match[1]}</span>
 							<SyntaxHighlighter
-								customStyle={{
-									fontSize: ".8rem",
-								}}
+								className='code-block-pre'
 								{...rest}
-								PreTag='pre'
+								customStyle={{
+									fontSize: ".7rem",
+								}}
+								PreTag='p'
 								children={String(children).replace(/\n$/, "")}
 								language={match[1]}
 								style={theme}

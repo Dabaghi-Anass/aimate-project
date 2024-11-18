@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const APP_URL = import.meta.env["VITE_REACT_APP_BASE_URL"];
+// const APP_URL = import.meta.env["VITE_REACT_APP_BASE_URL"];
+const APP_URL = "http://localhost:4040";
 
 export const fetchStreamedResponse = async (
 	userMessage,

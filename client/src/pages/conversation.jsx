@@ -11,7 +11,7 @@ import ReactionCtx from "../context/reaction";
 import { useAnimatedText } from "../hooks/useAnimatedText";
 import { useAudio } from "../hooks/useAudio";
 import useLocalStorage from "../hooks/useLocalStorage";
-import { uniqueId } from "../utils/utils";
+import { markdownToNormalText, uniqueId } from "../utils/utils";
 import { detectEmotion } from "./vocabulary";
 export default function Conversation() {
 	const { get } = useLocalStorage();
@@ -21,7 +21,7 @@ export default function Conversation() {
 	const animatedMessage = useAnimatedText(currentMessageStream);
 	const { speak, speaking } = useAudio(onBoundary);
 	const [pending, setPending] = useState(false);
-	const [permission, setPermission] = useState(true);
+	const [permission, setPermission] = useState(false);
 	const messagesContainer = useRef();
 	const userMessageRef = useRef();
 
@@ -69,15 +69,16 @@ export default function Conversation() {
 					]);
 					setCurrentMessageStream("");
 					displayReaction("happy");
-					speak(data, permission);
+					speak(markdownToNormalText(data), permission);
 				},
 			});
 		},
 		[permission]
 	);
 
-	function pushErrorMessage() {
+	function pushErrorMessage(error) {
 		const id = uniqueId();
+		console.log(error);
 		setMessages((prev) => [
 			...prev,
 			{
@@ -142,6 +143,7 @@ export default function Conversation() {
 		addEventListener("keydown", send);
 		return () => {
 			removeEventListener("keydown", send);
+			window?.speechSynthesis?.cancel();
 			stopSpeech();
 		};
 	}, []);

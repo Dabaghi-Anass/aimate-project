@@ -70,6 +70,7 @@ export default function () {
 							id='app.anounce'
 							defaultMessage='please this is just the beta version if you noticed any bugs please report it so we can fix it asap '
 						/>
+
 						<span className='important'>&#9787;</span>
 					</marquee>
 				</div>
