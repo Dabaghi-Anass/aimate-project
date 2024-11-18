@@ -1,9 +1,9 @@
 # aimate-project
 
+created by anass dabaghi
 a chatbot app powered with AI
 
 ### features
-
 -   speak with voice
 -   hear voice answers
 -   all languages support
