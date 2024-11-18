@@ -61,7 +61,7 @@ export default function Conversation() {
 		}, 0);
 	}
 
-	function sendMessage() {
+	async function sendMessage() {
 		const userMessage = userMessageRef?.current.value;
 		if (!userMessage) return;
 		setPending(true);

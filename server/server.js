@@ -90,7 +90,7 @@ app.post("/", async (req, res) => {
 			res.write(content.text());
 		}
 	} catch (error) {
-		console.log(error);
+		console.error(error.message);
 		res.write("\nSomething went wrong. Please try again later.");
 	} finally {
 		res.end();
