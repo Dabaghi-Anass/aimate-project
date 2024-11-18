@@ -59,15 +59,15 @@ export default function Conversation() {
 				},
 				onFinish: (data) => {
 					setPending(false);
-					setMessages((prev) => [
-						...prev,
-						{
-							content: data,
-							author: "bot",
-							id: uniqueId(),
-						},
-					]);
-					setCurrentMessageStream("");
+					// setMessages((prev) => [
+					// 	...prev,
+					// 	{
+					// 		content: data,
+					// 		author: "bot",
+					// 		id: uniqueId(),
+					// 	},
+					// ]);
+					// setCurrentMessageStream("");
 					displayReaction("happy");
 					speak(markdownToNormalText(data), permission);
 				},
