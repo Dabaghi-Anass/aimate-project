@@ -2,7 +2,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import express from "express";
-import fs from "fs";
 const website = "https://anass-dabaghi.vercel.app";
 const systemInstruction = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}. make sure to respond with markdown format`;
 dotenv.config();
@@ -26,51 +25,86 @@ app.get("/healthcheck", async (req, res) => {
 	res.send({ status: "ok" });
 });
 
-async function sleep(seconds) {
-	return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-}
-const fileContent = fs.readFileSync("response.txt", "utf-8");
-const linesArray = fileContent.split("\n");
-
 const chatsMap = new Map();
-app.post("/", async (req, res) => {
-	try {
-		res.setHeader("Content-Type", "text/event-stream");
-		res.setHeader("Cache-Control", "no-cache");
-		res.setHeader("Connection", "keep-alive");
-		res.setHeader("Transfer-Encoding", "chunked");
-		//get request ip address
-		// chatsMap.set(req.ip, chatsMap.get(req.ip));
-		// chats[req.ip] = chats[req.ip] || [];
-		for (const line of linesArray) {
-			res.write(line + "\n");
-			// await sleep(0.04);
-		}
-		res.end();
-	} catch (error) {
-		res.write("\nSomething went wrong. Please try again later.");
-		res.end();
-	}
-});
+//for testing perposes
 // app.post("/", async (req, res) => {
 // 	try {
+// const fileContent = fs.readFileSync("response.txt", "utf-8");
+// const linesArray = fileContent.split("\n");
 // 		res.setHeader("Content-Type", "text/event-stream");
 // 		res.setHeader("Cache-Control", "no-cache");
 // 		res.setHeader("Connection", "keep-alive");
 // 		res.setHeader("Transfer-Encoding", "chunked");
-// 		const prompt = req.body.prompt;
-// 		console.log("request from ", req.hostname);
-// 		const result = await model.generateContentStream(prompt);
-// 		for await (const content of result.stream) {
-// 			res.write(content.text());
-// 		}
+// 		//get request ip address
 
+// 		// chats[req.ip] = chats[req.ip] || [];
+// 		for (const line of linesArray) {
+// 			res.write(line + "\n");
+// 			// await sleep(0.04);
+// 		}
 // 		res.end();
 // 	} catch (error) {
-// 		console.log(error);
 // 		res.write("\nSomething went wrong. Please try again later.");
 // 		res.end();
 // 	}
 // });
+app.post("/", async (req, res) => {
+	try {
+		//track last request of the same ip
+		//if the same ip is making a request, we will use the same chat session
+		//to keep the conversation going
+		//if the ip is new, we will create a new chat session
+		//and store it in the map
+
+		//set headers for server sent events
+		res.setHeader("Content-Type", "text/event-stream");
+		res.setHeader("Cache-Control", "no-cache");
+		res.setHeader("Connection", "keep-alive");
+		res.setHeader("Transfer-Encoding", "chunked");
+		const prompt = req.body.prompt;
+
+		/*
+			{
+				lastVisited: number,
+				chatSession: ChatSession,
+			}
+		*/
+		let metaData = chatsMap.get(req.ip);
+		if (!metaData) {
+			metaData = {
+				lastVisited: 0,
+				chatSession: model.startChat({
+					history: [],
+					generationConfig: {
+						maxOutputTokens: 3000,
+					},
+				}),
+			};
+			chatsMap.set(req.ip, { ...metaData });
+		}
+		metaData.lastVisited = 0;
+
+		const result = await metaData.chatSession.sendMessageStream(prompt);
+
+		for await (const content of result.stream) {
+			res.write(content.text());
+		}
+	} catch (error) {
+		console.log(error);
+		res.write("\nSomething went wrong. Please try again later.");
+	} finally {
+		res.end();
+	}
+});
 const PORT = process.env.PORT || 3000;
+
+setInterval(() => {
+	for (const [key, value] of chatsMap.entries()) {
+		value.lastVisited++;
+		if (value.lastVisited > 60) {
+			chatsMap.delete(key);
+		}
+	}
+}, 60000);
+
 app.listen(PORT, () => console.log("AI server started on PORT : " + PORT));

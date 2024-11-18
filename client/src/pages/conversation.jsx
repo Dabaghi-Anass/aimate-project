@@ -31,6 +31,8 @@ export default function Conversation() {
 	const onTransmissionFinish = useCallback((data) => {
 		if (data?.length > 0) {
 			setPending(false);
+			displayReaction("happy");
+
 			setMessages((prev) => [
 				...prev,
 				{
@@ -84,7 +86,6 @@ export default function Conversation() {
 					setCurrentMessageStream((prev) => prev + chunk);
 				},
 				onFinish: (data) => {
-					displayReaction("happy");
 					speak(markdownToNormalText(data), permission);
 				},
 			});
