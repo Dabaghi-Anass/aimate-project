@@ -3,13 +3,13 @@ import cors from "cors";
 import * as dotenv from "dotenv";
 import express from "express";
 const website = "https://anass-dabaghi.vercel.app";
-const systemInstruction = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}. make sure to respond with markdown format`;
+const systemInstruction = `You are an AI assistant named "Ai mate", created by Anass Dabaghi ,anass portfolio: ${website}. make sure to respond with markdown format,if images requested send them in markdown syntax`;
 dotenv.config();
 const AI_API_KEY = process.env.AI_API_KEY;
 
 const genAI = new GoogleGenerativeAI(AI_API_KEY);
 const model = genAI.getGenerativeModel({
-	model: "gemini-1.5-flash",
+	model: "gemini-1.5-pro-002",
 	systemInstruction,
 });
 
@@ -26,28 +26,6 @@ app.get("/healthcheck", async (req, res) => {
 });
 
 const chatsMap = new Map();
-//for testing perposes
-// app.post("/", async (req, res) => {
-// 	try {
-// const fileContent = fs.readFileSync("response.txt", "utf-8");
-// const linesArray = fileContent.split("\n");
-// 		res.setHeader("Content-Type", "text/event-stream");
-// 		res.setHeader("Cache-Control", "no-cache");
-// 		res.setHeader("Connection", "keep-alive");
-// 		res.setHeader("Transfer-Encoding", "chunked");
-// 		//get request ip address
-
-// 		// chats[req.ip] = chats[req.ip] || [];
-// 		for (const line of linesArray) {
-// 			res.write(line + "\n");
-// 			// await sleep(0.04);
-// 		}
-// 		res.end();
-// 	} catch (error) {
-// 		res.write("\nSomething went wrong. Please try again later.");
-// 		res.end();
-// 	}
-// });
 app.post("/", async (req, res) => {
 	try {
 		//track last request of the same ip
