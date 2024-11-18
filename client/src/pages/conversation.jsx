@@ -213,7 +213,7 @@ export default function Conversation() {
 					onKeyUp={(e) => {
 						if (e.key === "Enter") sendMessage();
 					}}
-					placeholder='&#10095; write to mate'
+					placeholder='🤖 ask mate'
 				/>
 				<button
 					disabled={pending}
