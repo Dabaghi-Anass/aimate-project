@@ -3,6 +3,7 @@ import reactionsImages from "../assets/images/images";
 import { ReactionContext } from "../context/reaction";
 export default function Canvas() {
 	const { reaction: reactionCtx } = useContext(ReactionContext);
+	console.log(reactionCtx);
 	const { current: images } = useRef(reactionsImages);
 	const canvasRef = useRef(null);
 	let { current: ctx } = useRef(canvasRef?.current?.getContext("2d"));
@@ -84,5 +85,14 @@ export default function Canvas() {
 			clearInterval(animation);
 		};
 	}, []);
+	useEffect(() => {
+		if (!images) return;
+		initializeCanvas();
+		animate();
+		drawRobot(reactionCtx);
+		return () => {
+			clearInterval(animation);
+		};
+	}, [reactionCtx]);
 	return <canvas ref={canvasRef}></canvas>;
 }

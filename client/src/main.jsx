@@ -18,11 +18,11 @@ getLanguage();
 ReactDOM.createRoot(document.getElementById("root")).render(
 	// <React.StrictMode>
 	<IntlProvider locale={locale} messages={translations[locale]}>
-		<ReactionContextProvider>
-			<BrowserRouter>
+		<BrowserRouter>
+			<ReactionContextProvider>
 				<App />
-			</BrowserRouter>
-		</ReactionContextProvider>
+			</ReactionContextProvider>
+		</BrowserRouter>
 	</IntlProvider>
 	// </React.StrictMode>
 );
